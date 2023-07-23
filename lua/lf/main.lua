@@ -171,6 +171,17 @@ function Lf:__set_cmd_wrapper()
         open_on = self.curfile
     end
 
+    -- local file_type = vim.fn.system({
+    --   "file",
+    --   "--mime-type",
+    --   vim.api.nvim_buf_get_name(0),
+    --   "-b",
+    -- })
+    -- if vim.fn.matchstr(file_type, "text/") ~= "" then
+    --   self.term.cmd =
+    --       ([[%s -command='$printf $id > %s' -last-dir-path='%s' -selection-path='%s' %s]])
+    --       :format(self.term.cmd, self.tmp_id, self.tmp_lastdir, self.tmp_sel, open_on)
+    -- end
     -- command lf -command '$printf $id > '"$fid"'' -last-dir-path="$tmp" "$@"
     self.term.cmd =
         ([[%s -command='$printf $id > %s' -last-dir-path='%s' -selection-path='%s' %s]])
@@ -184,33 +195,8 @@ end
 function Lf:__on_open(term)
     self.bufnr = term.bufnr
     self.winid = term.window
-
-    cmd("silent! doautocmd User LfTermEnter")
-
-    -- Wrap needs to be set, otherwise the window isn't aligned on resize
-    api.nvim_win_call(self.winid, function()
-        vim.wo.showbreak = "NONE"
-        vim.wo.wrap = true
-        vim.wo.sidescrolloff = 0
-        vim.wo.scrolloff = 0
-        vim.wo.scrollbind = false
-    end)
-
-    if self.cfg.tmux then
-        utils.tmux(true)
-    end
-
     -- Not sure if this works
     if self.cfg.mappings then
-        if self.cfg.escape_quit then
-            map(
-                "t",
-                "<Esc>",
-                "<Cmd>q<CR>",
-                {buffer = self.bufnr, desc = "Exit Lf"}
-            )
-        end
-
         for key, mapping in pairs(self.cfg.default_actions) do
             map("t", key, function()
                 -- Change default_action for easier reading in the callback
@@ -223,19 +209,6 @@ function Lf:__on_open(term)
 
                 fn.system({"lf", "-remote", ("send %d open"):format(self.id)})
             end, {noremap = true, buffer = self.bufnr, desc = ("Lf %s"):format(mapping)})
-        end
-
-        if self.cfg.layout_mapping then
-            map("t", self.cfg.layout_mapping, function()
-                api.nvim_win_set_config(self.winid, utils.get_view(
-                    self.cfg.views[self.view_idx],
-                    self.bufnr,
-                    self.signcolumn
-                ))
-                self.view_idx = self.view_idx < #self.cfg.views
-                    and self.view_idx + 1
-                    or 1
-            end)
         end
     end
 end

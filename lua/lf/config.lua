@@ -8,10 +8,8 @@ local opts = {
     default_cmd = "lf",
     default_action = "drop",
     default_actions = {
-        ["<C-t>"] = "tabedit",
         ["<C-x>"] = "split",
         ["<C-v>"] = "vsplit",
-        ["<C-o>"] = "tab drop",
     },
     winblend = 10,
     dir = "",
