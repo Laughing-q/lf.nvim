@@ -92,7 +92,7 @@ function Lf:__create_term()
         direction = self.cfg.direction,
         winblend = self.cfg.winblend,
         close_on_exit = true,
-        hidden = false,
+        hidden = true,
         clear_env = self.cfg.env.clear,
         highlights = self.cfg.highlights,
         display_name = "Lf",
